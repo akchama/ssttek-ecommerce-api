@@ -23,8 +23,9 @@ public class JwtService : IJwtService
 
         var claims = new List<Claim>
         {
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Email, user.Email)
-            // You can add more claims if needed
         };
 
         var tokenDescriptor = new SecurityTokenDescriptor

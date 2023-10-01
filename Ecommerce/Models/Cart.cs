@@ -8,4 +8,5 @@ public class Cart
     public User User { get; set; }  // Reference to the user it belongs to
 
     public ICollection<CartItem> CartItems { get; set; }  // Items in the cart
+    public bool IsActive { get; set; }
 }

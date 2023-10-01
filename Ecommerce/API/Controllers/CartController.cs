@@ -1,41 +1,48 @@
+using System.Security.Claims;
+using Ecommerce.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+
+namespace Ecommerce.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 public class CartController : ControllerBase
 {
-    // Inject necessary services, e.g. ICartService
+    private readonly ICartService _cartService;
+
+    public CartController(ICartService cartService)
+    {
+        _cartService = cartService;
+    }
+
+    private int UserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)); 
 
     [HttpPost("add")]
-    public IActionResult AddToCart(AddToCartDto dto)
+    public async Task<IActionResult> AddToCart(AddToCartDto dto)
     {
-        // Implement adding product to cart logic here
-
-        return Ok(new { message = "Product added to cart" }); // Sample return
+        await _cartService.AddToCartAsync(UserId, dto.ProductId, dto.Quantity);
+        return Ok(new { message = "Product added to cart" });
     }
 
     [HttpPut("update")]
-    public IActionResult UpdateCart(UpdateCartDto dto)
+    public async Task<IActionResult> UpdateCart(UpdateCartDto dto)
     {
-        // Implement updating cart logic here
-
-        return Ok(new { message = "Cart updated" }); // Sample return
+        await _cartService.UpdateCartAsync(UserId, dto.ProductId, dto.Quantity);
+        return Ok(new { message = "Cart updated" });
     }
 
     [HttpDelete("remove/{productId}")]
-    public IActionResult RemoveFromCart(int productId)
+    public async Task<IActionResult> RemoveFromCart(int productId)
     {
-        // Implement removing product from cart logic here
-
-        return Ok(new { message = "Product removed from cart" }); // Sample return
+        await _cartService.RemoveFromCartAsync(UserId, productId);
+        return Ok(new { message = "Product removed from cart" });
     }
 
     [HttpGet]
-    public IActionResult GetActiveCart()
+    public async Task<IActionResult> GetActiveCart()
     {
-        // Implement fetching active cart logic here
-
-        return Ok(new { cart = "Active cart details" }); // Sample return
+        var cart = await _cartService.GetActiveCartAsync(UserId);
+        return Ok(new { cart });
     }
 }
 

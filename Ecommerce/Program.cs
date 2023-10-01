@@ -4,12 +4,13 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Ecommerce.Core.Interfaces;
 using Ecommerce.Core.Services;
+using Ecommerce.Data;
+using Ecommerce.Data.SeedData;
 using Ecommerce.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
 
 // JWT configuration
@@ -20,6 +21,13 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddTransient<ICategoryService, CategoryService>();
+builder.Services.AddTransient<ICartService, CartService>();
+
+// Register the DataSeeder
+builder.Services.AddTransient<CategorySeeder>();
+builder.Services.AddTransient<ProductSeeder>();
+builder.Services.AddTransient<UserSeeder>();
+builder.Services.AddTransient<DataSeeder>();
 
 // Authentication setup
 builder.Services.AddAuthentication(opt =>
@@ -50,7 +58,9 @@ using var scope = app.Services.CreateScope(); // Create a scope to access DI ser
 var context = scope.ServiceProvider.GetRequiredService<EcommerceDbContext>();
 
 context.Database.Migrate(); // Applies any pending migrations. Make sure you've created migrations.
-context.SeedData(); // Call your seed data method
+
+var dataSeeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
+dataSeeder.SeedAll(); // Call your new seed data method
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
