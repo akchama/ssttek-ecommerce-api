@@ -1,10 +1,10 @@
-using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Ecommerce.Core.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Ecommerce.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/categories")]
 public class CategoriesController : ControllerBase
 {
     private readonly ICategoryService _categoryService;
@@ -16,7 +16,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetCategories()
+    public async Task<IActionResult> GetAllCategories()
     {
         // Fetch the hierarchical list of categories from the service
         var categories = await _categoryService.GetHierarchicalCategoriesAsync();
@@ -30,8 +30,6 @@ public class CategoriesController : ControllerBase
         return Ok(categories);
     }
 }
-
-
 
 // The CategoryDto class will represent the data transfer object for categories
 // It's useful when you don't want to send the entire database entity to the client

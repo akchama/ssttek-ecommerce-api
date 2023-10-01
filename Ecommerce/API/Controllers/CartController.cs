@@ -1,11 +1,12 @@
 using System.Security.Claims;
 using Ecommerce.Core.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ecommerce.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/cart")]
 public class CartController : ControllerBase
 {
     private readonly ICartService _cartService;
@@ -17,21 +18,21 @@ public class CartController : ControllerBase
 
     private int UserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)); 
 
-    [HttpPost("add")]
+    [HttpPost("items")]
     public async Task<IActionResult> AddToCart(AddToCartDto dto)
     {
         await _cartService.AddToCartAsync(UserId, dto.ProductId, dto.Quantity);
         return Ok(new { message = "Product added to cart" });
     }
 
-    [HttpPut("update")]
-    public async Task<IActionResult> UpdateCart(UpdateCartDto dto)
+    [HttpPut("items/{productId}")]
+    public async Task<IActionResult> UpdateCart(int productId, UpdateCartDto dto)
     {
-        await _cartService.UpdateCartAsync(UserId, dto.ProductId, dto.Quantity);
+        await _cartService.UpdateCartAsync(UserId, productId, dto.Quantity);
         return Ok(new { message = "Cart updated" });
     }
 
-    [HttpDelete("remove/{productId}")]
+    [HttpDelete("items/{productId}")]
     public async Task<IActionResult> RemoveFromCart(int productId)
     {
         await _cartService.RemoveFromCartAsync(UserId, productId);
@@ -54,6 +55,5 @@ public class AddToCartDto
 
 public class UpdateCartDto
 {
-    public int ProductId { get; set; }
     public int Quantity { get; set; }
 }

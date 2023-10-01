@@ -1,10 +1,9 @@
 using Ecommerce.Core.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-[Authorize]
+namespace Ecommerce.API.Controllers;
+
 [ApiController]
-[Route("api/[controller]")]
 public class ProductsController : ControllerBase
 {
     private readonly IProductService _productService;
@@ -14,7 +13,8 @@ public class ProductsController : ControllerBase
         _productService = productService;
     }
 
-    [HttpGet("{categoryId}")]
+    // List Products by Category
+    [HttpGet("api/categories/{categoryId}/products")]
     public IActionResult GetProductsByCategory(int categoryId)
     {
         var products = _productService.GetProductsByCategory(categoryId);
@@ -24,7 +24,8 @@ public class ProductsController : ControllerBase
         return Ok(new { products });
     }
 
-    [HttpGet("details/{id}")]
+    // Get Product Details
+    [HttpGet("api/products/{id}")]
     public IActionResult GetProductDetails(int id)
     {
         var product = _productService.GetProductDetails(id);
