@@ -31,8 +31,6 @@ public class CategoriesController : ControllerBase
     }
 }
 
-// The CategoryDto class will represent the data transfer object for categories
-// It's useful when you don't want to send the entire database entity to the client
 public class CategoryDto
 {
     public int Id { get; set; }
