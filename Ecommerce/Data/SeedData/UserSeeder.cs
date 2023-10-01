@@ -15,7 +15,7 @@ public class UserSeeder
     {
         if (!_context.Users.Any())
         {
-            var mockPassword = "a72b84zx";
+            var mockPassword = "Abc123456789!";
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(mockPassword);
 
             _context.Users.Add(new User
