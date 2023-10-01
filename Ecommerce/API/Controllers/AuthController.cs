@@ -1,7 +1,8 @@
 using Ecommerce.API.DTOs;
 using Ecommerce.Core.Interfaces;
-using Ecommerce.Models;
 using Microsoft.AspNetCore.Mvc;
+
+namespace Ecommerce.API.Controllers;
 
 [ApiController]
 [Route("api/auth")]
@@ -37,12 +38,51 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public IActionResult Register(RegisterDto dto)
     {
+        // Ensure no fields are left empty
+        if (string.IsNullOrWhiteSpace(dto.Email) || 
+            string.IsNullOrWhiteSpace(dto.Password) || 
+            string.IsNullOrWhiteSpace(dto.PasswordConfirm) || 
+            string.IsNullOrWhiteSpace(dto.FirstName) || 
+            string.IsNullOrWhiteSpace(dto.LastName) || 
+            string.IsNullOrWhiteSpace(dto.City))
+        {
+            return BadRequest(new { message = "All fields are required." });
+        }
+
+        // Email format validation (basic check)
+        if (!dto.Email.Contains("@"))
+        {
+            return BadRequest(new { message = "Invalid email format." });
+        }
+
+        // Check if email is already registered
+        var existingUser = _userService.GetUserByEmail(dto.Email);
+        if (existingUser != null)
+        {
+            return BadRequest(new { message = "Email is already registered." });
+        }
+
+        // Password requirements check
+        if (dto.Password.Length < 10 || 
+            !dto.Password.Any(char.IsUpper) || 
+            !dto.Password.Any(char.IsDigit))
+        {
+            return BadRequest(new { message = "Password must be at least 10 characters long, contain at least one uppercase letter, and one digit." });
+        }
+
+        // Password confirmation match
+        if (dto.Password != dto.PasswordConfirm)
+        {
+            return BadRequest(new { message = "Password and confirmation do not match." });
+        }
+
         var result = _userService.RegisterUser(dto);
 
         if (!result.IsSuccess)
+        {
             return BadRequest(new { message = result.ErrorMessage });
+        }
 
         return Created("", new { message = "User registered successfully" });
     }
-
 }

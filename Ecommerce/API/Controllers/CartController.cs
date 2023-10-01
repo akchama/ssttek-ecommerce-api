@@ -16,7 +16,17 @@ public class CartController : ControllerBase
         _cartService = cartService;
     }
 
-    private int UserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)); 
+    private int? UserId 
+    {
+        get 
+        {
+            if (User?.Identity?.IsAuthenticated ?? false)
+            {
+                return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            }
+            return null;
+        }
+    }
 
     [HttpPost("items")]
     public async Task<IActionResult> AddToCart(AddToCartDto dto)

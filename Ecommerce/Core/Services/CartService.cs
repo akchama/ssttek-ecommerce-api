@@ -16,14 +16,12 @@ public class CartService : ICartService
 
     public async Task<Cart> GetActiveCartAsync(int? userId = null)
     {
-        var cartQuery = _context.Carts
+        // If userId is provided, get user cart. Otherwise, get guest cart.
+        return await _context.Carts
             .Include(c => c.CartItems)
-            .ThenInclude(ci => ci.Product);
-
-        if (userId.HasValue)
-            return await cartQuery.FirstOrDefaultAsync(c => c.UserId == userId && c.IsActive);
-
-        return await cartQuery.FirstOrDefaultAsync(c => c.IsGuest && c.IsActive);
+            .ThenInclude(ci => ci.Product)
+            .FirstOrDefaultAsync(c => (!userId.HasValue && c.IsGuest) || 
+                                      (userId.HasValue && c.UserId == userId.Value && c.IsActive));
     }
 
     public async Task AddToCartAsync(int? userId, int productId, int quantity)
@@ -32,12 +30,14 @@ public class CartService : ICartService
 
         if (cart == null)
         {
-            cart = new Cart
-            {
-                UserId = userId,
-                IsGuest = !userId.HasValue
+            cart = new Cart 
+            { 
+                UserId = userId, 
+                IsGuest = !userId.HasValue 
             };
+        
             _context.Carts.Add(cart);
+            await _context.SaveChangesAsync(); // Save immediately to generate ID
         }
 
         var cartItem = cart.CartItems?.FirstOrDefault(ci => ci.ProductId == productId);
@@ -59,7 +59,8 @@ public class CartService : ICartService
         await _context.SaveChangesAsync();
     }
 
-    public async Task UpdateCartAsync(int userId, int productId, int quantity)
+
+    public async Task UpdateCartAsync(int? userId, int productId, int quantity)
     {
         var cart = await GetActiveCartAsync(userId);
         var cartItem = cart?.CartItems.FirstOrDefault(ci => ci.ProductId == productId);
@@ -71,7 +72,7 @@ public class CartService : ICartService
         }
     }
 
-    public async Task RemoveFromCartAsync(int userId, int productId)
+    public async Task RemoveFromCartAsync(int? userId, int productId)
     {
         var cart = await GetActiveCartAsync(userId);
         var cartItem = cart?.CartItems.FirstOrDefault(ci => ci.ProductId == productId);

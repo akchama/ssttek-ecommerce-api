@@ -141,7 +141,9 @@ public class EcommerceDbContext : DbContext
             .HasOne(u => u.ActiveCart)
             .WithOne(c => c.User)
             .HasForeignKey<Cart>(c => c.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired(false); // Add this to allow UserId to be null
+
 
         // Setup Cart and CartItem one-to-many relationship
         modelBuilder.Entity<Cart>()
