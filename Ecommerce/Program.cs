@@ -19,6 +19,7 @@ builder.Services.AddSingleton(jwtSettings);
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddTransient<ICategoryService, CategoryService>();
 
 // Authentication setup
 builder.Services.AddAuthentication(opt =>
